@@ -2,6 +2,7 @@ package io.github.tthiadoads.service.impl;
 
 import io.github.tthiadoads.domain.entity.Usuario;
 import io.github.tthiadoads.domain.repository.UsuarioRepository;
+import io.github.tthiadoads.exception.SenhaInvalidaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,14 @@ public class UsuarioServiceImpl implements UserDetailsService {
         return repository.save(usuario);
     }
 
-
+    public UserDetails autenticar(Usuario usuario){
+        UserDetails user = loadUserByUsername(usuario.getLogin());
+        boolean senhasMatch = encoder.matches(usuario.getSenha(), user.getPassword());
+        if (senhasMatch){
+            return user;
+        }
+        throw new SenhaInvalidaException();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { //resposavel por carregar o usuario no db
